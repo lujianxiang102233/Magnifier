@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    
+    .box {
+      width: 350px;
+      height: 350px;
+      margin: 100px;
+      border: 1px solid #ccc;
+      position: relative;
+    }
+    
+    .big {
+      width: 400px;
+      height: 400px;
+      position: absolute;
+      top: 0;
+      left: 360px;
+      border: 1px solid #ccc;
+      overflow: hidden;
+      display: none;
+    }
+    
+    .mask {
+      width: 175px;
+      height: 175px;
+      background: rgba(255, 255, 0, 0.4);
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      cursor: move;
+      display: none;
+    }
+    
+    .small {
+      position: relative;
+      
+    }
+    
+    .aaa {
+      vertical-align: middle;
+    }
+    
+    .big {
+      position: relative;
+      top: -350px;
+    }
+    
+    .big img {
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+<div class="box" id="box">
+  <!--左侧的盒子-->
+  <div class="small">
+    <!--图片-->
+    <img src="images/small.webp" width="350" class="aaa" alt=""/>
+    <!--黄色小盒子：遮罩层，需要跟随鼠标移动-->
+    <div class="mask"></div>
+  </div>
+  <!--右侧的盒子-->
+  <div class="big">
+    <!--右侧盒子内的大图片-->
+    <img src="images/big.jpg" width="800" alt=""/>
+  </div>
+</div>
+
+<script>
+  var box = document.body.children[0]; // 大盒子
+  var smallBox = box.children[0];      // 左侧小盒子
+  var mask = smallBox.children[1];     // 黄色盒子，遮罩层
+  var bigBox = box.children[1];        // 右侧大盒子（默认隐藏）
+  var bigImg = bigBox.children[0];     // 右侧大盒子内的大图片
+
+  // 1 鼠标移入移出，设置对应结构显示隐藏
+  box.onmouseover = function () {
+    mask.style.display = 'block';
+    bigBox.style.display = 'block';
+  };
+  box.onmouseout = function () {
+    mask.style.display = 'none';
+    bigBox.style.display = 'none';
+  };
+
+  // 2 设置鼠标在左侧小盒子中移动时，黄盒子跟随效果
+  smallBox.onmousemove = function (event) {
+    var e = event || window.event;
+
+    // 计算黄盒子的left和top:
+    // 黄盒子坐标 = 鼠标坐标 - box外部距离 - mask宽(高)一半
+    var x = e.clientX - box.offsetLeft - mask.offsetWidth / 2;
+    var y = e.clientY - box.offsetTop - mask.offsetHeight / 2;
+
+    // 3 对计算后的mask的left与top进行边界检测
+    // 最小值：0
+    x = x < 0 ? 0 : x;
+    y = y < 0 ? 0 : y;
+    // 最大值：smallBox宽(高) - mask宽(高)
+    var maxLeft = smallBox.offsetWidth - mask.offsetWidth;
+    var maxTop = smallBox.offsetHeight - mask.offsetHeight;
+    x = x > maxLeft ? maxLeft : x;
+    y = y > maxTop ? maxTop : y;
+
+    // 将最终计算结果设置给mask的left与top即可。
+    mask.style.left = x + 'px';
+    mask.style.top = y + 'px';
+
+    // 4 计算左侧运动结构与右侧运动结构的尺寸比例
+    var biliX = mask.offsetWidth / (bigBox.offsetWidth - 2);
+    var biliY = mask.offsetHeight / (bigBox.offsetHeight - 2);
+
+    // 根据比例，和mask的运动距离，设置bigImg的运动距离
+    // 运动方向相反，设置负号。
+    bigImg.style.left = - x / biliX + 'px';
+    bigImg.style.top = - y / biliY + 'px';
+
+  }
+
+
+</script>
+
+</body>
+</html>
